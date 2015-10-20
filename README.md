@@ -6,9 +6,14 @@ A Python module to fetch and parse horoscope data from [theastrologer.com](http:
 * You will need [Python 4](https://www.python.org/download/).
 * [pip](http://pip.readthedocs.org/en/latest/installing.html) is recommended for installing dependencies.
 
-Install using pip:
-
-    pip install theastrologer
+## Installing dependencies
+```sh
+pip install requests lxml six
+```
+## Installing theastrologer library:
+```sh
+pip install theastrologer
+```
 
 ## Usage
 ```python
