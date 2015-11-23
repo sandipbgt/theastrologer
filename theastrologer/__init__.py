@@ -96,6 +96,7 @@ class Horoscope(object):
             'sunsign': self.sunsign.capitalize(),
             'horoscope': horoscope,
             'meta': self._get_horoscope_meta(day),
+            'credit': '(c) Kelli Fox, The Astrologer, http://new.theastrologer.com'
         }
 
     def _get_horoscope_meta(self, day='today'):
