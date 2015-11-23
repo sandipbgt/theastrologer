@@ -12,7 +12,7 @@ from requests.exceptions import RequestException, Timeout
 from lxml import etree
 from six import u
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 def is_valid_sunsign(sunsign):
     sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']

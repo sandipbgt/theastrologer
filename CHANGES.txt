@@ -1,1 +1,2 @@
 v0.1.0 20th October 2015 -- Initial release.
+v0.1.1 23rd November 2015 -- Added copyright information of theastrologer.com official website
