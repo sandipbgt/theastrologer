@@ -12,7 +12,7 @@ from requests.exceptions import RequestException, Timeout
 from lxml import etree
 from six import u
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 def is_valid_sunsign(sunsign):
     sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
@@ -94,7 +94,7 @@ class Horoscope(object):
         return {
             'date': date.strftime("%Y-%m-%d"),
             'sunsign': self.sunsign.capitalize(),
-            'horoscope': horoscope,
+            'horoscope': horoscope + "(c) Kelli Fox, The Astrologer, http://new.theastrologer.com",
             'meta': self._get_horoscope_meta(day),
             'credit': '(c) Kelli Fox, The Astrologer, http://new.theastrologer.com'
         }
