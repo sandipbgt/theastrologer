@@ -6,7 +6,7 @@ A Python module to fetch and parse horoscope data from [theastrologer.com](http:
 * [theastrologer-api](https://github.com/sandipbgt/theastrologer-api) - REST API to view and send horoscope as SMS using theastrologer lilbrary, Flask framework and Twilio API
 
 ## Installation
-* You will need [Python 4](https://www.python.org/download/).
+* You will need [Python 3](https://www.python.org/download/).
 * [pip](http://pip.readthedocs.org/en/latest/installing.html) is recommended for installing dependencies.
 
 ## Installing dependencies
