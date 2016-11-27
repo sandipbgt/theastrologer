@@ -9,10 +9,10 @@
 from datetime import date, timedelta
 from requests import get
 from requests.exceptions import RequestException, Timeout
-from lxml import etree
+from lxml import html
 from six import u
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 def is_valid_sunsign(sunsign):
     sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
@@ -62,7 +62,6 @@ class Horoscope(object):
 
         self.sunsign = sunsign.lower()
         self.url = "http://new.theastrologer.com/" + self.sunsign
-        self.parser = etree.HTMLParser()
         self.date_today = date.today()
         try:
             self.html_resp = get(self.url)
@@ -70,7 +69,7 @@ class Horoscope(object):
             raise HoroscopeException(e)
         except RequestException as e:
             raise HoroscopeException(e)
-        self.tree = etree.fromstring(self.html_resp.text, self.parser)
+        self.tree = html.fromstring(self.html_resp.content)
 
     def _get_horoscope(self, day='today'):
         """gets a horoscope from site html
@@ -82,7 +81,7 @@ class Horoscope(object):
         if not is_valid_day(day):
             raise HoroscopeException("Invalid day. Allowed days: [today|yesterday|tomorrow]" )
 
-        horoscope = str(self.tree.xpath('//*[@id="%s"]/p/text()' % day)[0])
+        horoscope = ''.join([str(s).strip() for s in self.tree.xpath('//*[@id="%s"]/p/text()' % day)])
 
         if day is 'yesterday':
             date = self.date_today - timedelta(days=1)
@@ -135,3 +134,7 @@ class Horoscope(object):
         :returns: dictionary of horoscope details
         """
         return self._get_horoscope('tomorrow')
+
+h = Horoscope(sunsign='virgo')
+from pprint import pprint
+pprint(h.tomorrow())
