@@ -12,7 +12,7 @@ from requests.exceptions import RequestException, Timeout
 from lxml import html
 from six import u
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 def is_valid_sunsign(sunsign):
     sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
@@ -134,7 +134,3 @@ class Horoscope(object):
         :returns: dictionary of horoscope details
         """
         return self._get_horoscope('tomorrow')
-
-h = Horoscope(sunsign='virgo')
-from pprint import pprint
-pprint(h.tomorrow())
