@@ -11,12 +11,13 @@ from requests import get
 from requests.exceptions import RequestException, Timeout
 from lxml import html
 from six import u
+import json
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
-def is_valid_sunsign(sunsign):
-    sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
-    if sunsign not in sunsigns:
+def is_valid_horoscope_type(horoscope_type):
+    horoscope_types = ['daily']
+    if horoscope_type not in horoscope_types:
         return False
     return True
 
@@ -25,6 +26,38 @@ def is_valid_day(day):
     if day not in days:
         return False
     return True
+
+def is_valid_sunsign(sunsign):
+    sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
+    if sunsign not in sunsigns:
+        return False
+    return True
+
+def build_horoscope_url(base_url, horoscope_type):
+    url = ''
+    if horoscope_type == 'daily':
+        url = base_url + '/daily-horoscope/'
+    return url
+
+def scrape_horoscopes_as_dict(tree, day):
+    divs = tree.xpath('//*[@id="' + day + '"]/div[4]/div')
+    horoscopes = {}
+    for div in divs:
+        sunsign = div.xpath('h2/text()')[0].strip()
+        horoscope = div.xpath('string()').replace(sunsign + '\n', '').replace('\n', '').strip()
+        horoscopes[sunsign.lower()] = horoscope
+    return horoscopes
+
+def scrape_horoscopes_as_list(tree, day):
+    divs = tree.xpath('//*[@id="' + day + '"]/div[4]/div')
+    horoscopes = []
+    for div in divs:
+        horoscope = {}
+        horoscope['sunsign'] = div.xpath('h2/text()')[0].strip()
+        horoscope['horoscope'] = div.xpath('string()').replace(horoscope['sunsign'] + '\n', '').replace('\n', '').strip()
+        horoscopes.append(horoscope)
+    return horoscopes
+
 
 class HoroscopeException(Exception):
     """Horoscope exception
@@ -52,23 +85,31 @@ class HoroscopeException(Exception):
 
 class Horoscope(object):
 
-    def __init__(self, sunsign=None):
+    def __init__(self, sunsign='aries', horoscope_type='daily'):
         """
         Create a Horoscope
         """
 
+        if not is_valid_horoscope_type(horoscope_type):
+            raise HoroscopeException("Invalid horoscope type. Allowed horososcpe types: [daily]" )
+
         if not is_valid_sunsign(sunsign):
             raise HoroscopeException("Invalid horoscope sunsign")
 
+        self.base_url = "http://new.theastrologer.com"        
         self.sunsign = sunsign.lower()
-        self.url = "http://new.theastrologer.com/" + self.sunsign
+        self.horoscope_type = horoscope_type.lower()
+        self.url = build_horoscope_url(self.base_url, self.horoscope_type)
+
         self.date_today = date.today()
+        
         try:
             self.html_resp = get(self.url)
         except Timeout as e:
             raise HoroscopeException(e)
         except RequestException as e:
             raise HoroscopeException(e)
+
         self.tree = html.fromstring(self.html_resp.content)
 
     def _get_horoscope(self, day='today'):
@@ -78,40 +119,16 @@ class Horoscope(object):
 
         :returns: dictionary of horoscope details
         """
+
         if not is_valid_day(day):
             raise HoroscopeException("Invalid day. Allowed days: [today|yesterday|tomorrow]" )
 
-        horoscope = ''.join([str(s).strip() for s in self.tree.xpath('//*[@id="%s"]/p/text()' % day)])
-
-        if day is 'yesterday':
-            date = self.date_today - timedelta(days=1)
-        elif day is 'today':
-            date = self.date_today
-        elif day is 'tomorrow':
-            date = self.date_today + timedelta(days=1)
+        horoscope = scrape_horoscopes_as_dict(self.tree, day)[self.sunsign]
 
         return {
-            'date': date.strftime("%Y-%m-%d"),
             'sunsign': self.sunsign.capitalize(),
-            'horoscope': horoscope + "(c) Kelli Fox, The Astrologer, http://new.theastrologer.com",
-            'meta': self._get_horoscope_meta(day),
+            'horoscope': horoscope + " (c) Kelli Fox, The Astrologer, http://new.theastrologer.com",
             'credit': '(c) Kelli Fox, The Astrologer, http://new.theastrologer.com'
-        }
-
-    def _get_horoscope_meta(self, day='today'):
-        """gets a horoscope meta from site html
-
-        :param day: day for which to get horoscope meta. Default is 'today'
-
-        :returns: dictionary of horoscope mood details
-        """
-        if not is_valid_day(day):
-            raise HoroscopeException("Invalid day. Allowed days: [today|yesterday|tomorrow]" )
-
-        return {
-            'intensity': str(self.tree.xpath('//*[@id="%s"]/div[3]/div[1]/p[1]/text()' % day)[0]).replace(": ", ""),
-            'mood': str(self.tree.xpath('//*[@id="%s"]/div[3]/div[1]/p[2]/text()' % day)[0]).replace(": ", ""),
-            'keywords': str(self.tree.xpath('//*[@id="%s"]/div[3]/div[2]/p[1]/text()' % day)[0]).replace(": ", ""),
         }
 
     def yesterday(self):
@@ -134,3 +151,21 @@ class Horoscope(object):
         :returns: dictionary of horoscope details
         """
         return self._get_horoscope('tomorrow')
+
+    def all(self, day):
+        """gets all horoscope as dict
+
+        :returns: dictionary of all horoscope
+        """
+        if not is_valid_day(day):
+            raise HoroscopeException("Invalid day. Allowed days: [today|yesterday|tomorrow]" )
+
+        horoscopes = scrape_horoscopes_as_list(self.tree, day)
+        return horoscopes
+
+    def all_as_json(self, day):
+        """gets all horoscope as json
+
+        :returns: json of all horoscope
+        """
+        return json.dumps(self.all(day))

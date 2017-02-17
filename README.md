@@ -26,10 +26,9 @@ from theastrologer import Horoscope
 horoscope = Horoscope("aquarius")
 today = horoscope.today()
 
-print(today['date'])
 print(today['sunsign'])
 print(today['horoscope'])
-print(today['meta'])
+
 
 ```
 
@@ -38,3 +37,4 @@ print(today['meta'])
 * Today's horoscope
 * Yesterday's horoscope
 * Tomorrow's horoscope
+* List of all horoscope

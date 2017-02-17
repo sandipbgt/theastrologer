@@ -3,3 +3,4 @@ v0.1.1 23rd November 2015 -- Added copyright information of theastrologer.com of
 v0.1.2 28th November 2015 -- Updated copyright information of theastrologer.com official website
 v0.1.3 27th November 2016 -- Fix cutting of horoscope data
 v0.1.4 27th November 2016 -- Fix cutting of horoscope data
+v0.1.5 17th February 2017 -- Added list of horoscopes in one function call
