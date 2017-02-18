@@ -11,12 +11,14 @@ from requests import get
 from requests.exceptions import RequestException, Timeout
 from lxml import html
 from six import u
+import json
 
-__version__ = '0.1.6'
+__version__ = '0.1.7'
+
+SUNSIGNS = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
 
 def is_valid_sunsign(sunsign):
-    sunsigns = ['aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo', 'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces']
-    if sunsign not in sunsigns:
+    if sunsign not in SUNSIGNS:
         return False
     return True
 
@@ -134,3 +136,12 @@ class Horoscope(object):
         :returns: dictionary of horoscope details
         """
         return self._get_horoscope('tomorrow')
+
+def all_horoscopes(day='today'):
+    if not is_valid_day(day):
+        raise HoroscopeException("Invalid day. Allowed days: [today|yesterday|tomorrow]")
+    horoscopes = [getattr(Horoscope(sunsign), day)() for sunsign in SUNSIGNS]
+    return horoscopes
+
+def all_horoscopes_as_json(day='today'):
+    return json.dumps(all_horoscopes(day))
